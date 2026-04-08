@@ -7,6 +7,7 @@ using GimLib.Textures.Gim.PaletteCodecs;
 using GimLib.Textures.Gim.PixelCodecs;
 using ImageMagick;
 using ImageMagick.Factories;
+using ImageMagick.Formats;
 
 namespace GimLib.Textures.Gim;
 
@@ -33,8 +34,7 @@ public class GimTextureEncoder
     private byte[]? encodedTextureData;
     private Endianness endianness = Endianness.Little;
 
-    private int
-        heightAlignment; // Height alignment will be 8 (if swizzled) or 1 (if not swizzled), or 4 if using a DXTn pixel format.
+    private int heightAlignment; // Height alignment will be 8 (if swizzled) or 1 (if not swizzled), or 4 if using a DXTn pixel format.
 
     private GimMetadata? metadata;
     private PaletteCodec? paletteCodec; // Palette codec
@@ -215,7 +215,7 @@ public class GimTextureEncoder
         //sourceImage = Image.Load<Bgra32>(source);
         sourceImage = new MagickImage(source, new MagickReadSettings()
         {
-            Depth = (uint) pixelCodec.BitsPerPixel,        
+            Depth = (uint) pixelCodec.BitsPerPixel
         });
 
         Width = (int) sourceImage.Width;
@@ -429,6 +429,7 @@ public class GimTextureEncoder
                 strideAlignment);
             pixelsPerRow = stride * 8 / pixelCodec.BitsPerPixel;
             pixelsPerColumn = MathHelper.RoundUp(Height, heightAlignment);
+            byte[] pixelData;
 
             if (sourceImage == null)
                 {
@@ -450,23 +451,40 @@ public class GimTextureEncoder
                 };
                 */
 
-                var settings = new QuantizeSettings
+                var quantizerSettings = new QuantizeSettings
                 {
                     Colors = (uint)paletteEntries,
-                    DitherMethod = Dither ? DitherMethod.FloydSteinberg : DitherMethod.No,
-                    ColorSpace = ColorSpace.sRGB
+                    ColorSpace = sourceImage.ColorSpace,
+                    DitherMethod = Dither ? DitherMethod.FloydSteinberg : DitherMethod.No
+                    
                 };
 
-            
-                settings.ColorSpace = ColorSpace.RGB;
-                //sourceImage.Quantize(settings);
+                MagickImage imageFrame = (MagickImage) sourceImage.Clone();
+                if (sourceImage is null)
+                {
+                    throw new NullReferenceException();
+                }
+
+                if(ImageHelper.TryBuildExactPalette(sourceImage, paletteEntries, out var palette))
+                {
+                    imageFrame.Remap(palette, quantizerSettings);
+                }
+                else
+                {
+                    imageFrame.Quantize(quantizerSettings);
+                }
                 
                 // Save the palette
-                encodedPaletteData = EncodePalette();
+                encodedPaletteData = EncodePalette(imageFrame);
+                pixelData = ImageHelper.GetPixelDataAsBytes(imageFrame, paletteEntries);
             }
-            File.WriteAllBytes("/Users/josesa/Documents/YADEWorkplace/EXTRACTED/.GIM/binary_encoder.bin",sourceImage.ToByteArray(MagickFormat.Bgra));
+            else
+            {
+                pixelData = ImageHelper.GetPixelDataAsBytes(sourceImage);
+            }
+            File.WriteAllBytes("/Users/josesa/Documents/YADEWorkplace/EXTRACTED/.GIM/binary_encoder.bin",pixelData);
 
-            return pixelCodec.Encode(sourceImage.ToByteArray(MagickFormat.Bgra), Width, Height, pixelsPerRow, pixelsPerColumn);
+            return pixelCodec.Encode(pixelData, Width, Height, pixelsPerRow, pixelsPerColumn);
         }
         
         throw new ArgumentNullException(nameof(pixelCodec), "Pixel codec can't be null.");
@@ -476,18 +494,16 @@ public class GimTextureEncoder
     ///     Encodes the palette.
     /// </summary>
     /// <returns></returns>
-    private byte[] EncodePalette()
+    private byte[] EncodePalette(MagickImage image)
     {
-        if(sourceImage == null)
+        if(image == null)
         {
             throw new NullReferenceException();
         }
-        //var palette = (MagickImage)sourceImage.UniqueColors();
+        if(!ImageHelper.TryBuildExactPalette(image, paletteEntries, out var palette)) throw new NullReferenceException();
         List<byte> paletteData = [];
-        var paletteSize = sourceImage.ColormapSize;
-        for (int i = 0; i < paletteSize; i++)
+        foreach(var color in palette)
         {
-            MagickColor? color = (MagickColor?)sourceImage.GetColormapColor(i) ?? throw new NullReferenceException();
             paletteData.Add(color.B);
             paletteData.Add(color.G);
             paletteData.Add(color.R);

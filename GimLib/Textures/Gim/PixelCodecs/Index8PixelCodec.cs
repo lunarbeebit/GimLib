@@ -43,7 +43,7 @@ internal class Index8PixelCodec : PixelCodec
         for (var y = 0; y < height; y++)
         for (var x = 0; x < width; x++)
         {
-            sourceIndex = (y * width + x) * 4;
+            sourceIndex = y * width + x;
             destinationIndex = y * pixelsPerRow + x;
 
             destination[destinationIndex] = source[sourceIndex];

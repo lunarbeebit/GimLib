@@ -3,6 +3,7 @@ using GimLib.Core;
 using GimLib.Textures.Gim.PaletteCodecs;
 using GimLib.Textures.Gim.PixelCodecs;
 using ImageMagick;
+using ImageMagick.Formats;
 
 namespace GimLib.Textures.Gim;
 
@@ -263,10 +264,9 @@ public class GimTextureDecoder
                 Width = (uint) this.Width,
                 Height = (uint) this.Height,
                 Depth = (uint) pixelCodec.BitsPerPixel,
-                Format = MagickFormat.Bgra,
-                
+                Format = MagickFormat.Bgra,                
             });
-        image.Write(destination, MagickFormat.Png8);
+        image.Write(destination, MagickFormat.Png);
     }
 
     // Decodes a texture
