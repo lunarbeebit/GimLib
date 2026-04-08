@@ -2,9 +2,7 @@
 using GimLib.Core;
 using GimLib.Textures.Gtx.PaletteCodecs;
 using GimLib.Textures.Gtx.PixelCodecs;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Formats.Png;
-using SixLabors.ImageSharp.PixelFormats;
+using ImageMagick;
 
 namespace GimLib.Textures.Gtx;
 
@@ -13,7 +11,7 @@ public class GtxTextureDecoder
 
     internal delegate void PixelOrderingDelegate(int origX, int origY, int width, int height, PixelDataFormat pixelFormat, out int transformedX, out int transformedY);
 
-    
+
 
     /// <summary>
     ///     Open a GTX texture from a file.
@@ -170,9 +168,21 @@ public class GtxTextureDecoder
                     foreach (byte[] paletteData in P8Palettes)
                         inputPaletteData.Add(paletteData);
             }
-
-            var image = Image.LoadPixelData<Rgba32>(DecodeTexture(PixelData[imageNumber], inputPaletteData[info.PaletteIndex], InputPixelFormat, InputPaletteFormat, Width, Height, PhysicalWidth, PhysicalHeight), Width, Height);
-            image.Save(destination, new PngEncoder());
+            var image = new MagickImage(DecodeTexture(PixelData[imageNumber],
+                                                      inputPaletteData[info.PaletteIndex],
+                                                      InputPixelFormat,
+                                                      InputPaletteFormat,
+                                                      Width,
+                                                      Height,
+                                                      PhysicalWidth,
+                                                      PhysicalHeight), new MagickReadSettings()
+            {
+                Width = Width,
+                Height = Height,
+                Depth = (uint) PixelCodecFactory.Create(InputPixelFormat)!.BitsPerPixel,
+                Format = MagickFormat.Rgba
+            });
+            image.Write(destination, MagickFormat.Png);
         }
     }
 

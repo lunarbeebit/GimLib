@@ -24,12 +24,13 @@ internal class Index8PixelCodec : PixelCodec
             sourceIndex = y * pixelsPerRow + x;
             destinationIndex = (y * width + x) * 4;
 
-            var paletteIndex = source[sourceIndex];
+            int paletteIndex = source[sourceIndex];
 
             for (var i = 0; i < 4; i++) destination[destinationIndex + i] = Palette[paletteIndex * 4 + i];
         }
 
         return destination;
+        
     }
 
     public override byte[] Encode(byte[] source, int width, int height, int pixelsPerRow, int pixelsPerColumn)

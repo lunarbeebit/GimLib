@@ -24,11 +24,15 @@ internal class Rgba8888PaletteCodec : PaletteCodec
             destinationIndex += 4;
         }
 
+        File.WriteAllBytes("/Users/josesa/Documents/YADEWorkplace/EXTRACTED/.GIM/binary_decoder.bin",destination);
+
         return destination;
     }
 
     public override byte[] Encode(byte[] source)
     {
+        File.WriteAllBytes("/Users/josesa/Documents/YADEWorkplace/EXTRACTED/.GIM/binary_encodeer.bin",source);
+
         var count = source.Length / 4;
         var destination = new byte[count * 4];
 

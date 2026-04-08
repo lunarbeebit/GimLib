@@ -22,12 +22,38 @@ public class GimTexture : TextureBase
     /// <param name="length">Number of bytes to read.</param>
     public override void Read(Stream source, Stream destination)
     {
-        // Reading GIM textures is done through the GIM texture decoder, so just pass it to that
-        var texture = new GimTextureDecoder(source);
+        try
+        {
+            // Reading GIM textures is done through the GIM texture decoder, so just pass it to that
+            var texture = new GimTextureDecoder(source);
+
+            texture.Save(destination);
+        } catch (Exception e)
+        {
+            Console.WriteLine(e);
+        }
+        
+    }
+
+    public new void Write(string source, string destination)
+    {
+        // Writing GIM textures is done through GIM texture encoder, so just pass it to that
+        var texture = new GimTextureEncoder(source, PaletteFormat, DataFormat);
+
+        texture.HasMetadata = HasMetadata;
+        texture.IsSwizzled = Swizzle;
+        texture.Dither = Dither;
+        /*if (texture.HasMetadata)
+        {
+            texture.Metadata.OriginalFilename = source is FileStream fs
+                ? Path.GetFileName(fs.Name)
+                : string.Empty;
+            texture.Metadata.User = Environment.UserName;
+            texture.Metadata.Program = "Puyo Tools";
+        }*/
 
         texture.Save(destination);
     }
-
     public override void Write(Stream source, Stream destination)
     {
         // Writing GIM textures is done through GIM texture encoder, so just pass it to that

@@ -1,12 +1,13 @@
-﻿using System.Diagnostics;
+﻿using System.Data;
+using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using GimLib.Core;
 using GimLib.Textures.Gim.PaletteCodecs;
 using GimLib.Textures.Gim.PixelCodecs;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.PixelFormats;
-using SixLabors.ImageSharp.Processing.Processors.Quantization;
+using ImageMagick;
+using ImageMagick.Factories;
+using ImageMagick.Formats;
 
 namespace GimLib.Textures.Gim;
 
@@ -33,8 +34,7 @@ public class GimTextureEncoder
     private byte[]? encodedTextureData;
     private Endianness endianness = Endianness.Little;
 
-    private int
-        heightAlignment; // Height alignment will be 8 (if swizzled) or 1 (if not swizzled), or 4 if using a DXTn pixel format.
+    private int heightAlignment; // Height alignment will be 8 (if swizzled) or 1 (if not swizzled), or 4 if using a DXTn pixel format.
 
     private GimMetadata? metadata;
     private PaletteCodec? paletteCodec; // Palette codec
@@ -44,7 +44,7 @@ public class GimTextureEncoder
     private int pixelsPerColumn;
     private int pixelsPerRow;
 
-    private Image<Bgra32>? sourceImage;
+    private MagickImage? sourceImage;
 
     private int stride;
 
@@ -67,10 +67,7 @@ public class GimTextureEncoder
     /// <param name="dataFormat">Data format to encode the texture to.</param>
     public GimTextureEncoder(string path, GimPaletteFormat? paletteFormat, GimPixelFormat pixelFormat)
     {
-        using (var stream = File.OpenRead(path))
-        {
-            Initialize(stream, paletteFormat, pixelFormat);
-        }
+        Initialize(path, paletteFormat, pixelFormat);
     }
 
     /// <summary>
@@ -145,6 +142,50 @@ public class GimTextureEncoder
     /// </summary>
     public bool Dither { get; set; }
 
+    private void Initialize(string source, GimPaletteFormat? paletteFormat, GimPixelFormat pixelFormat)
+    {
+        // Set the palette and pixel formats, and verify that we can encode to them.
+        // We'll also need to verify that the palette format is set if it's a palettized pixel format.
+        // Unlike with the decoder, an exception will be thrown here if a codec cannot be used to encode them.
+        PixelFormat = pixelFormat;
+        pixelCodec = PixelCodecFactory.Create(pixelFormat);
+        if (pixelCodec is null)
+            throw new NotSupportedException($"Pixel format {PixelFormat:X} is not supported for encoding.");
+
+        // Get the number of palette entries.
+        paletteEntries = pixelCodec.PaletteEntries;
+
+        if (paletteEntries != 0)
+        {
+            if (paletteFormat is null)
+                throw new ArgumentNullException(nameof(paletteFormat),
+                    $"Palette format must be set for pixel format {PixelFormat}");
+
+            PaletteFormat = paletteFormat.Value;
+            paletteCodec = PaletteCodecFactory.Create(paletteFormat.Value);
+            if (paletteCodec is null)
+                throw new NotSupportedException($"Palette format {PaletteFormat:X} is not supported for encoding.");
+        }
+
+        // Read the image.
+        //sourceImage = Image.Load<Bgra32>(source);
+        sourceImage = new MagickImage(source, MagickFormat.Png8);
+
+        Width = (int) sourceImage.Width;
+        Height = (int) sourceImage.Height;
+
+        // Create the metadata and set the default values.
+        metadata = new GimMetadata(
+            Path.GetFileName(source),
+            Environment.UserName,
+            DateTime.Now.ToString("ddd MMM dd HH:mm:ss yyyy"),
+            Assembly.GetEntryAssembly()!.GetCustomAttribute<AssemblyProductAttribute>()?.Product
+            + " " +
+            Assembly.GetEntryAssembly()!.GetCustomAttribute<AssemblyInformationalVersionAttribute>()
+                ?.InformationalVersion
+        );
+    }
+
     private void Initialize(Stream source, GimPaletteFormat? paletteFormat, GimPixelFormat pixelFormat)
     {
         // Set the palette and pixel formats, and verify that we can encode to them.
@@ -171,10 +212,14 @@ public class GimTextureEncoder
         }
 
         // Read the image.
-        sourceImage = Image.Load<Bgra32>(source);
+        //sourceImage = Image.Load<Bgra32>(source);
+        sourceImage = new MagickImage(source, new MagickReadSettings()
+        {
+            Depth = (uint) pixelCodec.BitsPerPixel
+        });
 
-        Width = sourceImage.Width;
-        Height = sourceImage.Height;
+        Width = (int) sourceImage.Width;
+        Height = (int) sourceImage.Height;
 
         // Create the metadata and set the default values.
         metadata = new GimMetadata(
@@ -375,8 +420,6 @@ public class GimTextureEncoder
     /// <returns>The byte array containing the encoded texture data.</returns>
     private byte[] EncodeTexture()
     {
-        byte[] pixelData;
-
         // Calculate the alignment, stride, and pixels per row/column.
         heightAlignment = IsSwizzled ? 8 : 1;
 
@@ -386,11 +429,19 @@ public class GimTextureEncoder
                 strideAlignment);
             pixelsPerRow = stride * 8 / pixelCodec.BitsPerPixel;
             pixelsPerColumn = MathHelper.RoundUp(Height, heightAlignment);
+            byte[] pixelData;
+
+            if (sourceImage == null)
+                {
+                    throw new ArgumentNullException(nameof(sourceImage), "source image can't be null");
+                }
 
             // Encode as a palettized image.
             if (paletteEntries != 0)
             {
+                /*
                 // Create the quantizer and quantize the texture.
+                image.
                 IQuantizer<Bgra32> quantizer;
                 IndexedImageFrame<Bgra32> imageFrame;
                 var quantizerOptions = new QuantizerOptions
@@ -398,38 +449,40 @@ public class GimTextureEncoder
                     MaxColors = paletteEntries,
                     Dither = Dither ? QuantizerConstants.DefaultDither : null
                 };
+                */
 
-                if (sourceImage != null && ImageHelper.TryBuildExactPalette(sourceImage, paletteEntries, out var palette))
+                var quantizerSettings = new QuantizeSettings
                 {
-                    Debug.Assert(palette != null, nameof(palette) + " != null");
-                    quantizer = new PaletteQuantizer(palette.Select(x => (Color)x).ToArray(), quantizerOptions)
-                        .CreatePixelSpecificQuantizer<Bgra32>(Configuration.Default);
+                    Colors = (uint)paletteEntries,
+                    ColorSpace = sourceImage.ColorSpace,
+                    DitherMethod = Dither ? DitherMethod.FloydSteinberg : DitherMethod.No
+                    
+                };
 
-                    imageFrame = quantizer.QuantizeFrame(sourceImage.Frames.RootFrame,
-                        new Rectangle(0, 0, sourceImage.Width, sourceImage.Height));
+                MagickImage imageFrame = (MagickImage) sourceImage.Clone();
+                if (sourceImage is null)
+                {
+                    throw new NullReferenceException();
+                }
+
+                if(ImageHelper.TryBuildExactPalette(sourceImage, paletteEntries, out var palette))
+                {
+                    imageFrame.Remap(palette, quantizerSettings);
                 }
                 else
                 {
-                    quantizer = new WuQuantizer(quantizerOptions)
-                        .CreatePixelSpecificQuantizer<Bgra32>(Configuration.Default);
-
-                    Debug.Assert(sourceImage != null, nameof(sourceImage) + " != null");
-                    imageFrame = quantizer.BuildPaletteAndQuantizeFrame(sourceImage.Frames.RootFrame,
-                        new Rectangle(0, 0, sourceImage.Width, sourceImage.Height));
+                    imageFrame.Quantize(quantizerSettings);
                 }
-
+                
                 // Save the palette
-                encodedPaletteData = EncodePalette(imageFrame.Palette);
-
-                pixelData = ImageHelper.GetPixelDataAsBytes(imageFrame);
+                encodedPaletteData = EncodePalette(imageFrame);
+                pixelData = ImageHelper.GetPixelDataAsBytes(imageFrame, paletteEntries);
             }
-
-            // Encode as an RGBA image.
             else
             {
-                Debug.Assert(sourceImage != null, nameof(sourceImage) + " != null");
-                pixelData = ImageHelper.GetPixelDataAsBytes(sourceImage.Frames.RootFrame);
+                pixelData = ImageHelper.GetPixelDataAsBytes(sourceImage);
             }
+            File.WriteAllBytes("/Users/josesa/Documents/YADEWorkplace/EXTRACTED/.GIM/binary_encoder.bin",pixelData);
 
             return pixelCodec.Encode(pixelData, Width, Height, pixelsPerRow, pixelsPerColumn);
         }
@@ -441,11 +494,22 @@ public class GimTextureEncoder
     ///     Encodes the palette.
     /// </summary>
     /// <returns></returns>
-    private byte[] EncodePalette(ReadOnlyMemory<Bgra32> palette)
+    private byte[] EncodePalette(MagickImage image)
     {
-        var paletteData = MemoryMarshal.AsBytes(palette.Span).ToArray();
-
-        return paletteCodec != null ? paletteCodec.Encode(paletteData) : throw new ArgumentException("Palette can't be null.", nameof(palette));
+        if(image == null)
+        {
+            throw new NullReferenceException();
+        }
+        if(!ImageHelper.TryBuildExactPalette(image, paletteEntries, out var palette)) throw new NullReferenceException();
+        List<byte> paletteData = [];
+        foreach(var color in palette)
+        {
+            paletteData.Add(color.B);
+            paletteData.Add(color.G);
+            paletteData.Add(color.R);
+            paletteData.Add(color.A);
+        }
+        return paletteCodec != null ? paletteCodec.Encode([.. paletteData]) : throw new ArgumentException("Palette can't be null.", nameof(paletteData));
     }
 
     private static byte[] Swizzle(byte[] source, int stride, int pixelsPerColumn)
