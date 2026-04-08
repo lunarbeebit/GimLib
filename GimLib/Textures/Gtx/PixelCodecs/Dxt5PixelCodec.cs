@@ -1,4 +1,4 @@
-﻿namespace GimLib.Textures.Gtx.PixelCodecs;
+namespace GimLib.Textures.Gtx.PixelCodecs;
 
 /// <inheritdoc />
 internal class Dxt5PixelCodec : PixelCodec
@@ -27,24 +27,24 @@ internal class Dxt5PixelCodec : PixelCodec
             {
                 for (var i = 0; i < 2; i++)
                 {
-                    var encodedColor = BitConverter.ToUInt16(source, sourceIndex + rowIndex + 4 + i * 2);
+                    var encodedColor = BitConverter.ToUInt16(source, sourceIndex + rowIndex + 4 + (i * 2));
 
                     encodedColors[i] = encodedColor;
 
-                    colors[i * 4 + 2] = (byte)(((encodedColor >> 11) & 0x1F) * 0xFF / 0x1F);
-                    colors[i * 4 + 1] = (byte)(((encodedColor >> 5) & 0x3F) * 0xFF / 0x3F);
-                    colors[i * 4 + 0] = (byte)(((encodedColor >> 0) & 0x1F) * 0xFF / 0x1F);
+                    colors[(i * 4) + 2] = (byte)(((encodedColor >> 11) & 0x1F) * 0xFF / 0x1F);
+                    colors[(i * 4) + 1] = (byte)(((encodedColor >> 5) & 0x3F) * 0xFF / 0x3F);
+                    colors[(i * 4) + 0] = (byte)(((encodedColor >> 0) & 0x1F) * 0xFF / 0x1F);
                 }
 
                 if (encodedColors[0] > encodedColors[1])
                 {
-                    colors[10] = (byte)((colors[2] * 2 + colors[6]) / 3);
-                    colors[9] = (byte)((colors[1] * 2 + colors[5]) / 3);
-                    colors[8] = (byte)((colors[0] * 2 + colors[4]) / 3);
+                    colors[10] = (byte)(((colors[2] * 2) + colors[6]) / 3);
+                    colors[9] = (byte)(((colors[1] * 2) + colors[5]) / 3);
+                    colors[8] = (byte)(((colors[0] * 2) + colors[4]) / 3);
 
-                    colors[14] = (byte)((colors[6] * 2 + colors[2]) / 3);
-                    colors[13] = (byte)((colors[5] * 2 + colors[1]) / 3);
-                    colors[12] = (byte)((colors[4] * 2 + colors[0]) / 3);
+                    colors[14] = (byte)(((colors[6] * 2) + colors[2]) / 3);
+                    colors[13] = (byte)(((colors[5] * 2) + colors[1]) / 3);
+                    colors[12] = (byte)(((colors[4] * 2) + colors[0]) / 3);
                 }
                 else
                 {
@@ -61,19 +61,19 @@ internal class Dxt5PixelCodec : PixelCodec
 
                 if (alphas[0] > alphas[1])
                 {
-                    alphas[2] = (byte)((alphas[0] * 6 + alphas[1]) / 7);
-                    alphas[3] = (byte)((alphas[0] * 5 + alphas[1] * 2) / 7);
-                    alphas[4] = (byte)((alphas[0] * 4 + alphas[1] * 3) / 7);
-                    alphas[5] = (byte)((alphas[0] * 3 + alphas[1] * 4) / 7);
-                    alphas[6] = (byte)((alphas[0] * 2 + alphas[1] * 5) / 7);
-                    alphas[7] = (byte)((alphas[0] + alphas[1] * 6) / 7);
+                    alphas[2] = (byte)(((alphas[0] * 6) + alphas[1]) / 7);
+                    alphas[3] = (byte)(((alphas[0] * 5) + (alphas[1] * 2)) / 7);
+                    alphas[4] = (byte)(((alphas[0] * 4) + (alphas[1] * 3)) / 7);
+                    alphas[5] = (byte)(((alphas[0] * 3) + (alphas[1] * 4)) / 7);
+                    alphas[6] = (byte)(((alphas[0] * 2) + (alphas[1] * 5)) / 7);
+                    alphas[7] = (byte)((alphas[0] + (alphas[1] * 6)) / 7);
                 }
                 else
                 {
-                    alphas[2] = (byte)((alphas[0] * 4 + alphas[1]) / 5);
-                    alphas[3] = (byte)((alphas[0] * 3 + alphas[1] * 2) / 5);
-                    alphas[4] = (byte)((alphas[0] * 2 + alphas[1] * 3) / 5);
-                    alphas[5] = (byte)((alphas[0] + alphas[1] * 4) / 5);
+                    alphas[2] = (byte)(((alphas[0] * 4) + alphas[1]) / 5);
+                    alphas[3] = (byte)(((alphas[0] * 3) + (alphas[1] * 2)) / 5);
+                    alphas[4] = (byte)(((alphas[0] * 2) + (alphas[1] * 3)) / 5);
+                    alphas[5] = (byte)((alphas[0] + (alphas[1] * 4)) / 5);
                     alphas[6] = 0;
                     alphas[7] = 0xFF;
                 }
@@ -89,8 +89,8 @@ internal class Dxt5PixelCodec : PixelCodec
                 for (var x2 = 0; x2 < 4 && x + x2 < width; x2++)
                 {
                     var colorIndex = ((source[sourceIndex + rowIndex + y2] >> (x2 * 2)) & 0x3) * 4;
-                    var alphaIndex = (int)((alphaIndexes >> ((y2 * 4 + x2) * 3)) & 0x7);
-                    destinationIndex = ((y + y2) * width + x + x2) * 4;
+                    var alphaIndex = (int)((alphaIndexes >> (((y2 * 4) + x2) * 3)) & 0x7);
+                    destinationIndex = (((y + y2) * width) + x + x2) * 4;
 
                     destination[destinationIndex + 3] = alphas[alphaIndex];
                     for (var i = 0; i < 3; i++) destination[destinationIndex + i] = colors[colorIndex + i];

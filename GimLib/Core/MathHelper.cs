@@ -1,4 +1,4 @@
-﻿using System.Runtime.CompilerServices;
+using System.Runtime.CompilerServices;
 
 namespace GimLib.Core;
 
@@ -10,7 +10,7 @@ public static class MathHelper
         if (value % multiple == 0)
             return value;
 
-        return value + (multiple - value % multiple);
+        return value + (multiple - (value % multiple));
     }
 
     public static uint RoundUp(uint value, int multiple)
@@ -19,7 +19,7 @@ public static class MathHelper
         if (value % multiple == 0)
             return value;
 
-        return value + ((uint)multiple - value % (uint)multiple);
+        return value + ((uint)multiple - (value % (uint)multiple));
     }
 
     /// <summary>

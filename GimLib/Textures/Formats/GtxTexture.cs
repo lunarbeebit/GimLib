@@ -1,4 +1,4 @@
-﻿using GimLib.Textures.Gtx;
+using GimLib.Textures.Gtx;
 
 namespace GimLib.Textures.Formats;
 
@@ -6,7 +6,6 @@ public class GtxTexture : TextureBase
 {
     public GtxTexture()
     {
-        
     }
 
     /// <summary>

@@ -1,4 +1,4 @@
-﻿using System.Buffers.Binary;
+using System.Buffers.Binary;
 using System.Runtime.CompilerServices;
 using System.Text;
 
@@ -340,7 +340,7 @@ public static class BinaryWriterExtensions
 
         if (position % alignment != 0)
         {
-            var buffer = new byte[alignment - position % alignment];
+            var buffer = new byte[alignment - (position % alignment)];
             if (paddingValue != default) Array.Fill(buffer, paddingValue);
             writer.Write(buffer);
         }

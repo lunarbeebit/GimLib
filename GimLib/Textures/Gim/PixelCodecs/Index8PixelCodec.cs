@@ -1,4 +1,4 @@
-﻿namespace GimLib.Textures.Gim.PixelCodecs;
+namespace GimLib.Textures.Gim.PixelCodecs;
 
 /// <inheritdoc />
 internal class Index8PixelCodec : PixelCodec
@@ -21,16 +21,15 @@ internal class Index8PixelCodec : PixelCodec
         for (var y = 0; y < height; y++)
         for (var x = 0; x < width; x++)
         {
-            sourceIndex = y * pixelsPerRow + x;
-            destinationIndex = (y * width + x) * 4;
+            sourceIndex = (y * pixelsPerRow) + x;
+            destinationIndex = ((y * width) + x) * 4;
 
             int paletteIndex = source[sourceIndex];
 
-            for (var i = 0; i < 4; i++) destination[destinationIndex + i] = Palette[paletteIndex * 4 + i];
+            for (var i = 0; i < 4; i++) destination[destinationIndex + i] = Palette[(paletteIndex * 4) + i];
         }
 
         return destination;
-        
     }
 
     public override byte[] Encode(byte[] source, int width, int height, int pixelsPerRow, int pixelsPerColumn)
@@ -43,8 +42,8 @@ internal class Index8PixelCodec : PixelCodec
         for (var y = 0; y < height; y++)
         for (var x = 0; x < width; x++)
         {
-            sourceIndex = y * width + x;
-            destinationIndex = y * pixelsPerRow + x;
+            sourceIndex = (y * width) + x;
+            destinationIndex = (y * pixelsPerRow) + x;
 
             destination[destinationIndex] = source[sourceIndex];
         }

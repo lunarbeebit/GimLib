@@ -1,4 +1,4 @@
-﻿namespace GimLib.Textures.Gtx.PixelCodecs;
+namespace GimLib.Textures.Gtx.PixelCodecs;
 
 /// <inheritdoc />
 internal class Rgba8888PixelCodec : PixelCodec
@@ -17,8 +17,8 @@ internal class Rgba8888PixelCodec : PixelCodec
         for (var y = 0; y < height; y++)
         for (var x = 0; x < width; x++)
         {
-            sourceIndex = (y * pixelsPerRow + x) * 4;
-            destinationIndex = (y * width + x) * 4;
+            sourceIndex = ((y * pixelsPerRow) + x) * 4;
+            destinationIndex = ((y * width) + x) * 4;
 
             destination[destinationIndex + 3] = source[sourceIndex + 3];
             destination[destinationIndex + 2] = source[sourceIndex + 0];
@@ -39,8 +39,8 @@ internal class Rgba8888PixelCodec : PixelCodec
         for (var y = 0; y < height; y++)
         for (var x = 0; x < width; x++)
         {
-            sourceIndex = (y * width + x) * 4;
-            destinationIndex = (y * pixelsPerRow + x) * 4;
+            sourceIndex = ((y * width) + x) * 4;
+            destinationIndex = ((y * pixelsPerRow) + x) * 4;
 
             destination[destinationIndex + 3] = source[sourceIndex + 3];
             destination[destinationIndex + 2] = source[sourceIndex + 0];
