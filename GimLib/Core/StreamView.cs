@@ -1,4 +1,4 @@
-﻿namespace GimLib.Core;
+namespace GimLib.Core;
 
 /// <summary>
 ///     Provides a read-only view over a portion of a stream.
@@ -39,8 +39,8 @@ public class StreamView : Stream
     /// <param name="length">The length of the stream in bytes.</param>
     public StreamView(Stream stream, long offset, long length)
     {
-        if (stream == null) throw new ArgumentNullException(nameof(stream));
-        if (offset < 0) throw new ArgumentOutOfRangeException(nameof(offset));
+        ArgumentNullException.ThrowIfNull(stream);
+        ArgumentOutOfRangeException.ThrowIfNegative(offset);
         if (length < 0 || offset + length > stream.Length) throw new ArgumentOutOfRangeException(nameof(length));
 
         baseStream = stream;
@@ -94,7 +94,7 @@ public class StreamView : Stream
         {
             ThrowIfDisposed();
 
-            if (value < 0) throw new ArgumentOutOfRangeException(nameof(value));
+            ArgumentOutOfRangeException.ThrowIfNegative(value);
 
             positionInBaseStream = startInBaseStream + value;
         }
@@ -181,9 +181,9 @@ public class StreamView : Stream
         {
             case SeekOrigin.Begin:
             {
-                if (offset < 0) throw new ArgumentOutOfRangeException(nameof(offset));
+                    ArgumentOutOfRangeException.ThrowIfNegative(offset);
 
-                positionInBaseStream = startInBaseStream + offset;
+                    positionInBaseStream = startInBaseStream + offset;
             }
                 break;
 

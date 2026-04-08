@@ -1,4 +1,4 @@
-﻿
+
 using System.Text;
 using GimLib.Core;
 
@@ -58,7 +58,7 @@ namespace GimLib.Textures.Gtx
         U8U8U8 = 0x98000000,
         S8S8S8 = 0x99000000,
         U2F10F10F10 = 0x9A000000
-    };
+    }
 
     public enum SceGxmTextureSwizzle4Mode : ushort
     {
@@ -70,13 +70,13 @@ namespace GimLib.Textures.Gtx
         _1RGB = 0x5000,
         RGB1 = 0x6000,
         BGR1 = 0x7000
-    };
+    }
 
     public enum SceGxmTextureSwizzle3Mode : ushort
     {
         BGR = 0x0000,
         RGB = 0x1000
-    };
+    }
 
     public enum SceGxmTextureSwizzle2Mode : ushort
     {
@@ -86,13 +86,13 @@ namespace GimLib.Textures.Gtx
         RGGG = 0x3000,
         GRGR = 0x4000,
         _00RG = 0x5000
-    };
+    }
 
     public enum SceGxmTextureSwizzle2ModeAlt : ushort
     {
         SD = 0x0000,
         DS = 0x1000
-    };
+    }
 
     public enum SceGxmTextureSwizzle1Mode : ushort
     {
@@ -104,7 +104,7 @@ namespace GimLib.Textures.Gtx
         _1RRR = 0x5000,
         R000 = 0x6000,
         R111 = 0x7000
-    };
+    }
 
     public enum SceGxmTextureSwizzleYUV422Mode : ushort
     {
@@ -116,7 +116,7 @@ namespace GimLib.Textures.Gtx
         YVYU_CSC1 = 0x5000,
         UYVY_CSC1 = 0x6000,
         VYUY_CSC1 = 0x7000
-    };
+    }
 
     public enum SceGxmTextureSwizzleYUV420Mode : ushort
     {
@@ -124,7 +124,7 @@ namespace GimLib.Textures.Gtx
         YVU_CSC0 = 0x1000,
         YUV_CSC1 = 0x2000,
         YVU_CSC1 = 0x3000
-    };
+    }
 
     public enum SceGxmTextureFormat : uint
     {
@@ -438,7 +438,7 @@ namespace GimLib.Textures.Gtx
         PVRT4BPP = SceGxmTextureFormat.PVRT4BPP_ABGR,
         PVRTII2BPP = SceGxmTextureFormat.PVRTII2BPP_ABGR,
         PVRTII4BPP = SceGxmTextureFormat.PVRTII4BPP_ABGR
-    };
+    }
 
     public enum SceGxmTextureType : uint
     {
@@ -449,7 +449,7 @@ namespace GimLib.Textures.Gtx
         SwizzledArbitrary = 0xA0000000,
         LinearStrided = 0xC0000000,
         CubeArbitrary = 0xE0000000
-    };
+    }
 
     public class SceGxtHeader
     {

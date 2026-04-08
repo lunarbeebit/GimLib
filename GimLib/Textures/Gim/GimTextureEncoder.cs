@@ -1,4 +1,4 @@
-﻿using System.Data;
+using System.Data;
 using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -456,7 +456,6 @@ public class GimTextureEncoder
                     Colors = (uint)paletteEntries,
                     ColorSpace = sourceImage.ColorSpace,
                     DitherMethod = Dither ? DitherMethod.FloydSteinberg : DitherMethod.No
-                    
                 };
 
                 MagickImage imageFrame = (MagickImage) sourceImage.Clone();
@@ -526,10 +525,10 @@ public class GimTextureEncoder
             var blockX = x / 16;
             var blockY = y / 8;
 
-            var blockIndex = blockX + blockY * rowblocks;
+            var blockIndex = blockX + (blockY * rowblocks);
             var blockAddress = blockIndex * 16 * 8;
 
-            destination[blockAddress + (x - blockX * 16) + (y - blockY * 8) * 16] = source[sourceIndex];
+            destination[blockAddress + (x - (blockX * 16)) + ((y - (blockY * 8)) * 16)] = source[sourceIndex];
             sourceIndex++;
         }
 

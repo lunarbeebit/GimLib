@@ -1,4 +1,4 @@
-﻿namespace GimLib.Textures.Gtx.PixelCodecs;
+namespace GimLib.Textures.Gtx.PixelCodecs;
 
 /// <inheritdoc />
 internal class Index32PixelCodec : PixelCodec
@@ -25,12 +25,12 @@ internal class Index32PixelCodec : PixelCodec
         for (var y = 0; y < height; y++)
         for (var x = 0; x < width; x++)
         {
-            sourceIndex = (y * pixelsPerRow + x) * 4;
-            destinationIndex = (y * width + x) * 4;
+            sourceIndex = ((y * pixelsPerRow) + x) * 4;
+            destinationIndex = ((y * width) + x) * 4;
 
             var paletteIndex = BitConverter.ToUInt32(source, sourceIndex);
 
-            for (var i = 0; i < 4; i++) destination[destinationIndex + i] = Palette[paletteIndex * 4 + i];
+            for (var i = 0; i < 4; i++) destination[destinationIndex + i] = Palette[(paletteIndex * 4) + i];
         }
 
         return destination;
@@ -46,8 +46,8 @@ internal class Index32PixelCodec : PixelCodec
         for (var y = 0; y < height; y++)
         for (var x = 0; x < width; x++)
         {
-            sourceIndex = y * width + x;
-            destinationIndex = (y * pixelsPerRow + x) * 4;
+            sourceIndex = (y * width) + x;
+            destinationIndex = ((y * pixelsPerRow) + x) * 4;
 
             ushort paletteIndex = source[sourceIndex];
 

@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using System.Drawing;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -55,9 +55,7 @@ internal class ImageHelper
 
             palette.Add(color);
             exactPaletteCreated = true;
-            
         }
-
 
         return exactPaletteCreated;
     }
@@ -119,10 +117,8 @@ internal class ImageHelper
             palette.Add(color);
             data[i] = (TQuantumType) Convert.ChangeType(palette.FindIndex(0, color.Equals) , typeof(TQuantumType));
             i++;
-            
         }
 
         return data;
     }
-
 }

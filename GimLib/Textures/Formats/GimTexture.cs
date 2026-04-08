@@ -1,4 +1,4 @@
-﻿using GimLib.Textures.Gim;
+using GimLib.Textures.Gim;
 
 namespace GimLib.Textures.Formats;
 
@@ -32,7 +32,6 @@ public class GimTexture : TextureBase
         {
             Console.WriteLine(e);
         }
-        
     }
 
     public new void Write(string source, string destination)

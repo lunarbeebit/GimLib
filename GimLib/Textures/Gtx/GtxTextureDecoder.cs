@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 using GimLib.Core;
 using GimLib.Textures.Gtx.PaletteCodecs;
 using GimLib.Textures.Gtx.PixelCodecs;
@@ -8,10 +8,7 @@ namespace GimLib.Textures.Gtx;
 
 public class GtxTextureDecoder
 {
-
     internal delegate void PixelOrderingDelegate(int origX, int origY, int width, int height, PixelDataFormat pixelFormat, out int transformedX, out int transformedY);
-
-
 
     /// <summary>
     ///     Open a GTX texture from a file.
@@ -71,7 +68,6 @@ public class GtxTextureDecoder
             PixelData[i] = reader.ReadBytes((int)info.DataSize);
         }
     }
-
 
     public SceGxtHeader Header { get; private set; }
     public SceGxtTextureInfo[] TextureInfos { get; private set; }
@@ -153,7 +149,6 @@ public class GtxTextureDecoder
 
                         InputPixelFormat |= PixelDataFormat.PixelOrderingSwizzledVita;
                         break;
-
                 }
             }
 
@@ -223,8 +218,6 @@ public class GtxTextureDecoder
 
         return destination;
     }
-
-
 
     internal static PixelOrderingDelegate GetPixelOrderingFunction(PixelDataFormat inputPixelFormat)
     {
