@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 using GimLib.Core;
 using GimLib.Textures.Gim.PaletteCodecs;
 using GimLib.Textures.Gim.PixelCodecs;
@@ -307,10 +307,10 @@ public class GimTextureDecoder
             var blockX = x / 16;
             var blockY = y / 8;
 
-            var blockIndex = blockX + blockY * rowblocks;
+            var blockIndex = blockX + (blockY * rowblocks);
             var blockAddress = blockIndex * 16 * 8;
 
-            destination[destinationIndex] = source[blockAddress + (x - blockX * 16) + (y - blockY * 8) * 16];
+            destination[destinationIndex] = source[blockAddress + (x - (blockX * 16)) + ((y - (blockY * 8)) * 16)];
             destinationIndex++;
         }
 

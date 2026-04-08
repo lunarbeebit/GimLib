@@ -1,4 +1,4 @@
-﻿namespace GimLib.Textures.Gtx.PixelCodecs;
+namespace GimLib.Textures.Gtx.PixelCodecs;
 
 /// <inheritdoc />
 internal class Dxt3PixelCodec : PixelCodec
@@ -27,24 +27,24 @@ internal class Dxt3PixelCodec : PixelCodec
             {
                 for (var i = 0; i < 2; i++)
                 {
-                    var encodedColor = BitConverter.ToUInt16(source, sourceIndex + rowIndex + 4 + i * 2);
+                    var encodedColor = BitConverter.ToUInt16(source, sourceIndex + rowIndex + 4 + (i * 2));
 
                     encodedColors[i] = encodedColor;
 
-                    colors[i * 4 + 2] = (byte)(((encodedColor >> 11) & 0x1F) * 0xFF / 0x1F);
-                    colors[i * 4 + 1] = (byte)(((encodedColor >> 5) & 0x3F) * 0xFF / 0x3F);
-                    colors[i * 4 + 0] = (byte)(((encodedColor >> 0) & 0x1F) * 0xFF / 0x1F);
+                    colors[(i * 4) + 2] = (byte)(((encodedColor >> 11) & 0x1F) * 0xFF / 0x1F);
+                    colors[(i * 4) + 1] = (byte)(((encodedColor >> 5) & 0x3F) * 0xFF / 0x3F);
+                    colors[(i * 4) + 0] = (byte)(((encodedColor >> 0) & 0x1F) * 0xFF / 0x1F);
                 }
 
                 if (encodedColors[0] > encodedColors[1])
                 {
-                    colors[10] = (byte)((colors[2] * 2 + colors[6]) / 3);
-                    colors[9] = (byte)((colors[1] * 2 + colors[5]) / 3);
-                    colors[8] = (byte)((colors[0] * 2 + colors[4]) / 3);
+                    colors[10] = (byte)(((colors[2] * 2) + colors[6]) / 3);
+                    colors[9] = (byte)(((colors[1] * 2) + colors[5]) / 3);
+                    colors[8] = (byte)(((colors[0] * 2) + colors[4]) / 3);
 
-                    colors[14] = (byte)((colors[6] * 2 + colors[2]) / 3);
-                    colors[13] = (byte)((colors[5] * 2 + colors[1]) / 3);
-                    colors[12] = (byte)((colors[4] * 2 + colors[0]) / 3);
+                    colors[14] = (byte)(((colors[6] * 2) + colors[2]) / 3);
+                    colors[13] = (byte)(((colors[5] * 2) + colors[1]) / 3);
+                    colors[12] = (byte)(((colors[4] * 2) + colors[0]) / 3);
                 }
                 else
                 {
@@ -61,16 +61,16 @@ internal class Dxt3PixelCodec : PixelCodec
                 {
                     var value = source[sourceIndex + rowIndex + 8 + i];
 
-                    alphas[i * 2 + 0] = (byte)((value & 0xF) * 0xFF / 0x0F);
-                    alphas[i * 2 + 1] = (byte)((value >> 4) * 0xFF / 0xF);
+                    alphas[(i * 2) + 0] = (byte)((value & 0xF) * 0xFF / 0x0F);
+                    alphas[(i * 2) + 1] = (byte)((value >> 4) * 0xFF / 0xF);
                 }
 
                 for (var y2 = 0; y2 < 4 && y + y2 < height; y2++)
                 for (var x2 = 0; x2 < 4 && x + x2 < width; x2++)
                 {
                     var colorIndex = ((source[sourceIndex + rowIndex + y2] >> (x2 * 2)) & 0x3) * 4;
-                    var alphaIndex = y2 * 4 + x2;
-                    destinationIndex = ((y + y2) * width + x + x2) * 4;
+                    var alphaIndex = (y2 * 4) + x2;
+                    destinationIndex = (((y + y2) * width) + x + x2) * 4;
 
                     destination[destinationIndex + 3] = alphas[alphaIndex];
                     for (var i = 0; i < 3; i++) destination[destinationIndex + i] = colors[colorIndex + i];

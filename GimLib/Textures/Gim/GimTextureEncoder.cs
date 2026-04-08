@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using GimLib.Core;
@@ -462,10 +462,10 @@ public class GimTextureEncoder
             var blockX = x / 16;
             var blockY = y / 8;
 
-            var blockIndex = blockX + blockY * rowblocks;
+            var blockIndex = blockX + (blockY * rowblocks);
             var blockAddress = blockIndex * 16 * 8;
 
-            destination[blockAddress + (x - blockX * 16) + (y - blockY * 8) * 16] = source[sourceIndex];
+            destination[blockAddress + (x - (blockX * 16)) + ((y - (blockY * 8)) * 16)] = source[sourceIndex];
             sourceIndex++;
         }
 

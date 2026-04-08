@@ -1,4 +1,4 @@
-﻿namespace GimLib.Textures.Gim.PixelCodecs;
+namespace GimLib.Textures.Gim.PixelCodecs;
 
 /// <inheritdoc />
 internal class Index4PixelCodec : PixelCodec
@@ -21,12 +21,12 @@ internal class Index4PixelCodec : PixelCodec
         for (var y = 0; y < height; y++)
         for (var x = 0; x < width; x++)
         {
-            sourceIndex = (y * pixelsPerRow + x) / 2;
-            destinationIndex = (y * width + x) * 4;
+            sourceIndex = ((y * pixelsPerRow) + x) / 2;
+            destinationIndex = ((y * width) + x) * 4;
 
             var paletteIndex = (byte)((source[sourceIndex] >> ((x & 0x1) * 4)) & 0xF);
 
-            for (var i = 0; i < 4; i++) destination[destinationIndex + i] = Palette[paletteIndex * 4 + i];
+            for (var i = 0; i < 4; i++) destination[destinationIndex + i] = Palette[(paletteIndex * 4) + i];
         }
 
         return destination;
@@ -42,8 +42,8 @@ internal class Index4PixelCodec : PixelCodec
         for (var y = 0; y < height; y++)
         for (var x = 0; x < width; x++)
         {
-            sourceIndex = y * width + x;
-            destinationIndex = (y * pixelsPerRow + x) / 2;
+            sourceIndex = (y * width) + x;
+            destinationIndex = ((y * pixelsPerRow) + x) / 2;
 
             destination[destinationIndex] |= (byte)((source[sourceIndex] & 0xF) << ((x & 0x1) * 4));
         }

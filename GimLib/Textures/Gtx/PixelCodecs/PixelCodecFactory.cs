@@ -1,4 +1,4 @@
-﻿namespace GimLib.Textures.Gtx.PixelCodecs;
+namespace GimLib.Textures.Gtx.PixelCodecs;
 
 internal static class PixelCodecFactory
 {
@@ -9,7 +9,6 @@ internal static class PixelCodecFactory
     /// <returns>The pixel codec, or <see langword="null" /> if one does not exist.</returns>
     public static PixelCodec? Create(PixelDataFormat format)
     {
-
         if (format.HasFlag(PixelDataFormat.FormatRgb565)) return new Rgb565PixelCodec();
         
         if (format.HasFlag(PixelDataFormat.FormatRgba5551)) return new Rgba5551PixelCodec();
