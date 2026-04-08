@@ -2,9 +2,7 @@
 using GimLib.Core;
 using GimLib.Textures.Gim.PaletteCodecs;
 using GimLib.Textures.Gim.PixelCodecs;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Formats.Png;
-using SixLabors.ImageSharp.PixelFormats;
+using ImageMagick;
 
 namespace GimLib.Textures.Gim;
 
@@ -258,8 +256,17 @@ public class GimTextureDecoder
     /// <param name="destination">The stream to save the texture to.</param>
     public void Save(Stream destination)
     {
-        var image = Image.LoadPixelData<Bgra32>(GetPixelData(), Width, Height);
-        image.Save(destination, new PngEncoder());
+        if (pixelCodec == null)
+            throw new NullReferenceException();
+        var image = new MagickImage(GetPixelData(), new MagickReadSettings()
+            {
+                Width = (uint) this.Width,
+                Height = (uint) this.Height,
+                Depth = (uint) pixelCodec.BitsPerPixel,
+                Format = MagickFormat.Bgra,
+                
+            });
+        image.Write(destination, MagickFormat.Png8);
     }
 
     // Decodes a texture
