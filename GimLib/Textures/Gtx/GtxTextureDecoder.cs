@@ -11,7 +11,7 @@ public class GtxTextureDecoder
 
     internal delegate void PixelOrderingDelegate(int origX, int origY, int width, int height, PixelDataFormat pixelFormat, out int transformedX, out int transformedY);
 
-    
+
 
     /// <summary>
     ///     Open a GTX texture from a file.
@@ -168,11 +168,18 @@ public class GtxTextureDecoder
                     foreach (byte[] paletteData in P8Palettes)
                         inputPaletteData.Add(paletteData);
             }
-            var image = new MagickImage(DecodeTexture(PixelData[imageNumber], inputPaletteData[info.PaletteIndex], InputPixelFormat, InputPaletteFormat, Width, Height, PhysicalWidth, PhysicalHeight), new MagickReadSettings()
+            var image = new MagickImage(DecodeTexture(PixelData[imageNumber],
+                                                      inputPaletteData[info.PaletteIndex],
+                                                      InputPixelFormat,
+                                                      InputPaletteFormat,
+                                                      Width,
+                                                      Height,
+                                                      PhysicalWidth,
+                                                      PhysicalHeight), new MagickReadSettings()
             {
                 Width = Width,
                 Height = Height,
-                Depth = 32,
+                Depth = (uint) PixelCodecFactory.Create(InputPixelFormat)!.BitsPerPixel,
                 Format = MagickFormat.Rgba
             });
             image.Write(destination, MagickFormat.Png);
